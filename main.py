@@ -1,16 +1,32 @@
-# This is a sample Python script.
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+from webdriver_manager.firefox import GeckoDriverManager
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# Set options (optional)
+options = Options()
+options.add_argument("--start-maximized")  # Start maximized
+options.add_argument("--headless")  # Run without opening a browser window
 
+# Initialize the Firefox driver
+driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Navigate to a webpage
+driver.get("https://www.python.org")
 
+# Print the title
+print("Page title:", driver.title)
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+# Find an element
+search_box = driver.find_element("name", "q")
+search_box.send_keys("Selenium\n")
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Wait a bit (for demo purposes)
+import time
+time.sleep(3)
+
+# Print the new title
+print("New page title:", driver.title)
+
+# Quit the browser
+driver.quit()
