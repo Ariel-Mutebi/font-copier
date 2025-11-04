@@ -1,32 +1,29 @@
 from selenium import webdriver
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options
-from webdriver_manager.firefox import GeckoDriverManager
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 
-# Set options (optional)
+# Configure Chrome options
 options = Options()
 options.add_argument("--start-maximized")  # Start maximized
-options.add_argument("--headless")  # Run without opening a browser window
+# options.add_argument("--headless")       # Uncomment to run without UI
+# options.add_argument("--no-sandbox")     # Useful for Docker or CI
+# options.add_argument("--disable-dev-shm-usage")
 
-# Initialize the Firefox driver
-driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()), options=options)
+# Launch Chrome
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-# Navigate to a webpage
+# Navigate to a page
 driver.get("https://www.python.org")
 
-# Print the title
-print("Page title:", driver.title)
-
-# Find an element
+# Example interaction
+print("Title:", driver.title)
 search_box = driver.find_element("name", "q")
 search_box.send_keys("Selenium\n")
 
-# Wait a bit (for demo purposes)
 import time
-time.sleep(3)
+time.sleep(2)
 
-# Print the new title
-print("New page title:", driver.title)
+print("New title:", driver.title)
 
-# Quit the browser
 driver.quit()
