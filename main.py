@@ -1,29 +1,31 @@
+import os
+import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.common.by import By
 
 # Configure Chrome options
 options = Options()
-options.add_argument("--start-maximized")  # Start maximized
-# options.add_argument("--headless")       # Uncomment to run without UI
-# options.add_argument("--no-sandbox")     # Useful for Docker or CI
-# options.add_argument("--disable-dev-shm-usage")
-
-# Launch Chrome
+options.add_argument("--start-maximized")
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-# Navigate to a page
-driver.get("https://www.python.org")
+# Mapbox fonts page
+driver.get("https://github.com/mapbox/mapbox-studio-default-fonts/tree/master")
 
-# Example interaction
-print("Title:", driver.title)
-search_box = driver.find_element("name", "q")
-search_box.send_keys("Selenium\n")
-
-import time
 time.sleep(2)
 
-print("New title:", driver.title)
+# scrape text in links to folders/files
+links = driver.find_elements(By.CLASS_NAME, "Link--primary")
+texts = [link.text for link in links]
+
+def is_folder_name(name: str) -> bool:
+    """Return True if the name does not have a file extension (is a folder)."""
+    return not bool(os.path.splitext(name)[1])
+
+# I'm assuming that all the folder names are fonts.
+mapbox_font_names = list(filter(is_folder_name, texts))
+print(mapbox_font_names)
 
 driver.quit()
