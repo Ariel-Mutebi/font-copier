@@ -23,7 +23,11 @@ def kebab_case_to_capitalized_snake_case(s: str) ->  str:
     return "_".join([segment.capitalize() for segment in s.split("-")])
 
 def kebab_case_to_pascal_case(s: str) -> str:
-    return "".join([segment.capitalize() for segment in s.split("-")])
+    segments = s.split("-")
+    if len(segments) == 1:
+        return s
+
+    return "".join([segment.capitalize() for segment in segments])
 
 # Main program
 options = Options()
@@ -77,6 +81,11 @@ failed_urls = []
 for font in fonts_to_add:
     destination = MAPKA_FONTS_DIRECTORY + kebab_case_to_capitalized_snake_case(font)
     os.makedirs(destination, exist_ok=True)
+
+    if os.listdir(destination):
+        continue # already did this font in a previous run.
+
+
 
     for variant in FONT_VARIANTS:
         filename = f"{kebab_case_to_pascal_case(font)}-{variant}.ttf"
