@@ -76,16 +76,13 @@ FONT_VARIANTS = [
     "ThinItalic"
 ]
 MAPKA_FONTS_DIRECTORY = "/home/player/Mapka/fonts/packages/fonts/fonts/"
-failed_urls = []
 
 for font in fonts_to_add:
     destination = MAPKA_FONTS_DIRECTORY + kebab_case_to_capitalized_snake_case(font)
     os.makedirs(destination, exist_ok=True)
 
     if os.listdir(destination):
-        continue # already did this font in a previous run.
-
-
+        continue # probably already has font files
 
     for variant in FONT_VARIANTS:
         filename = f"{kebab_case_to_pascal_case(font)}-{variant}.ttf"
@@ -98,10 +95,5 @@ for font in fonts_to_add:
             with open(os.path.join(destination, filename), "wb") as file:
                 file.write(response.content)
 
-        # Continue execution to URLs that work.
-        # Append failed URLs to list for manual intervention.
         except requests.HTTPError as error:
             print(error)
-            failed_urls.append(url)
-
-print(failed_urls)
