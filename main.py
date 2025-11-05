@@ -1,6 +1,8 @@
 import os
 import time
 from typing import List
+
+import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
@@ -19,6 +21,9 @@ def kebab_case_to_no_case(s: str) -> str:
 
 def kebab_case_to_capitalized_snake_case(s: str) ->  str:
     return "_".join([segment.capitalize() for segment in s.split("-")])
+
+def kebab_case_to_pascal_case(s: str) -> str:
+    return "".join([segment.capitalize() for segment in s.split("-")])
 
 # Main program
 options = Options()
@@ -50,10 +55,44 @@ fonts_to_add = [
     if not font_name in mapka_font_names_with_mapbox_casing
 ]
 
-MAPKA_FONTS_DIRECTORY_ABSOLUTE_PATH = "/home/player/Mapka/fonts/packages/fonts/fonts/"
+FONT_VARIANTS = [
+    "Black",
+    "BlackItalic",
+    "Bold",
+    "BoldItalic",
+    "ExtraBold",
+    "ExtraBoldItalic",
+    "Italic",
+    "Light",
+    "LightItalic",
+    "Medium",
+    "MediumItalic",
+    "Regular",
+    "Thin",
+    "ThinItalic"
+]
+MAPKA_FONTS_DIRECTORY = "/home/player/Mapka/fonts/packages/fonts/fonts/"
+failed_urls = []
 
 for font in fonts_to_add:
-    github_google_fonts_mirror_for_svn = f"https://github.com/google/fonts/trunk/ofl/{kebab_case_to_no_case(font)}"
-    destination = MAPKA_FONTS_DIRECTORY_ABSOLUTE_PATH + kebab_case_to_capitalized_snake_case(font)
+    destination = MAPKA_FONTS_DIRECTORY + kebab_case_to_capitalized_snake_case(font)
     os.makedirs(destination, exist_ok=True)
-    os.system(f"svn export {github_google_fonts_mirror_for_svn} {destination}")
+
+    for variant in FONT_VARIANTS:
+        filename = f"{kebab_case_to_pascal_case(font)}-{variant}.ttf"
+        url = f"https://raw.githubusercontent.com/google/fonts/main/ofl/{kebab_case_to_no_case(font)}/{filename}"
+
+        try:
+            response = requests.get(url)
+            response.raise_for_status()
+
+            with open(os.path.join(destination, filename), "wb") as file:
+                file.write(response.content)
+
+        # Continue execution to URLs that work.
+        # Append failed URLs to list for manual intervention.
+        except requests.HTTPError as error:
+            print(error)
+            failed_urls.append(url)
+
+print(failed_urls)
